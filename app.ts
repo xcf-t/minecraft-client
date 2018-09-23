@@ -101,17 +101,6 @@ export class MinecraftClient {
 
 }
 
-MinecraftClient.getForgeClient("1.12.2", {
-    version: "14.23.4.2709",
-    build: 2709
-}, {
-    gameDir: "/tmp/.minecraft"
-})
-    .then(async c => {
-        await c.checkInstallation();
-        await c.launch(Authentication.offline("Nobody"))
-    });
-
 export declare type ClientOptions = {
     gameDir?: string,
     javaExecutable?: string,

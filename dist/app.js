@@ -6,7 +6,6 @@ const Assets_1 = require("./utils/Assets");
 const mz_1 = require("mz");
 var Authentication_1 = require("./utils/Authentication");
 exports.Authentication = Authentication_1.Authentication;
-const Authentication_2 = require("./utils/Authentication");
 class MinecraftClient {
     constructor(version, forge, options = MinecraftClient.defaultConfig) {
         for (let i in MinecraftClient.defaultConfig)
@@ -73,14 +72,4 @@ MinecraftClient.defaultConfig = {
     javaExecutable: 'java'
 };
 exports.MinecraftClient = MinecraftClient;
-MinecraftClient.getForgeClient("1.12.2", {
-    version: "14.23.4.2709",
-    build: 2709
-}, {
-    gameDir: "/tmp/.minecraft"
-})
-    .then(async (c) => {
-    await c.checkInstallation();
-    await c.launch(Authentication_2.Authentication.offline("Nobody"));
-});
 //# sourceMappingURL=app.js.map
