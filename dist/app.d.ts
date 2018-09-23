@@ -1,15 +1,28 @@
-import { MinecraftVersion, VersionManager } from "./utils/Versions";
+/// <reference types="node" />
+import { ForgeVersion, MinecraftVersion } from "./utils/Versions";
 import { LibraryManager } from "./utils/Libraries";
+import { AssetManager } from "./utils/Assets";
+import { child_process } from 'mz';
+export { Authentication } from "./utils/Authentication";
+import { AuthenticationResult } from "./utils/Authentication";
+import { ForgeVersionDescription, ForgeVersionType } from "./utils/Manifests";
 export declare class MinecraftClient {
     version: MinecraftVersion;
     options: ClientOptions;
-    versionManager: VersionManager;
+    forge: ForgeVersion;
     libraryManager: LibraryManager;
-    constructor(version: MinecraftVersion, options?: ClientOptions, versionManager?: VersionManager, libraryManager?: LibraryManager);
-    static getClient(version: string | MinecraftVersion, options?: ClientOptions): Promise<MinecraftClient | null>;
-    install(): Promise<void>;
+    assetManager: AssetManager;
+    nativeDir: string;
+    private constructor();
+    private static readonly defaultConfig;
+    static getMinecraftClient(version: string | MinecraftVersion, options: ClientOptions): Promise<MinecraftClient | null>;
+    static getForgeClient(version: string | MinecraftVersion, forge: ForgeVersionType | ForgeVersionDescription, options: ClientOptions): Promise<MinecraftClient | null>;
+    static getClient(version: string | MinecraftVersion, forge: ForgeVersionType | ForgeVersionDescription, options: ClientOptions): Promise<MinecraftClient | null>;
+    checkInstallation(): Promise<void>;
+    launch(auth: AuthenticationResult): Promise<child_process.ChildProcess>;
 }
 export declare type ClientOptions = {
-    gameFolder?: string;
+    gameDir?: string;
     javaExecutable?: string;
+    javaArguments?: string[];
 };

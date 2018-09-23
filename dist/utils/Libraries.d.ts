@@ -1,20 +1,29 @@
 import { ForgeVersion, MinecraftVersion } from "./Versions";
 import { ClientOptions } from "../app";
+import { MinecraftArtifact } from "./Manifests";
+import { AuthenticationResult } from "./Authentication";
 export declare class LibraryManager {
     options: ClientOptions;
     version: MinecraftVersion;
-    constructor(version: MinecraftVersion, options: ClientOptions);
-    installMinecraftLibraries(version: MinecraftVersion): Promise<void>;
+    mainClass: string;
+    minecraftArguments: string;
+    versionType: string;
+    assetIndex: string;
+    constructor(options: ClientOptions, version: MinecraftVersion);
+    installMinecraftLibraries(): Promise<void>;
     installForgeLibraries(version: ForgeVersion): Promise<void>;
+    unpackNatives(version: MinecraftVersion): Promise<string>;
+    getClasspath(): Promise<string>;
+    getLaunchArguments(auth: AuthenticationResult): string[];
 }
-export declare type Library = {
+export declare type MinecraftLibrary = {
     name: string;
     downloads: {
-        artifact: Artifact;
+        artifact: MinecraftArtifact;
         classifiers?: {
-            "natives-osx"?: Artifact;
-            "natives-linux"?: Artifact;
-            "natives-windows"?: Artifact;
+            "natives-osx"?: MinecraftArtifact;
+            "natives-linux"?: MinecraftArtifact;
+            "natives-windows"?: MinecraftArtifact;
         };
     };
     extract?: {
@@ -27,67 +36,10 @@ export declare type Library = {
     };
     rules?: [Rule];
 };
-declare type Artifact = {
-    path?: string;
-    sha1: string;
-    size: number;
-    url: string;
-};
-export declare type ForgeLibraryManifest = {
-    install: {
-        profileName: string;
-        target: string;
-        path: string;
-        version: string;
-        filePath: string;
-        minecraft: string;
-        mirrorList: string;
-        logo: string;
-        welcome: string;
-        modlist: string;
-    };
-    versionInfo: {
-        id: string;
-        time: Date;
-        releaseTime: Date;
-        type: string;
-        minecraftArguments: string;
-        mainClass: string;
-        inheritsFrom: string;
-        jar: string;
-        logging: object;
-        libraries: ForgeManifestLibrary[];
-    };
-    optionals: ForgeManifestLibrary[];
-};
-declare type ForgeManifestLibrary = {
-    name: string;
-    url?: string;
-    checksums?: [string];
-    serverreq?: boolean;
-    clientreq?: boolean;
-};
-export declare type Manifest = {
-    assetIndex: Artifact;
-    assets: string;
-    downloads: {
-        client: Artifact;
-        server: Artifact;
-    };
-    id: string;
-    libraries: [Library];
-    mainClass: string;
-    minecraftArguments: string;
-    minimumLauncherVersion: number;
-    releaseTime: Date;
-    time: Date;
-    type: 'release' | 'snapshot';
-};
 declare type Rule = {
     action: 'allow' | 'disallow';
     os?: {
         name: 'osx' | 'linux' | 'windows';
     };
 };
-export declare function getManifest(version: MinecraftVersion, options: ClientOptions): Promise<Manifest>;
 export {};

@@ -1,8 +1,8 @@
-export declare class FSHelper {
-    static recursiveCopy(src: string, dest: string): Promise<void>;
-}
+/// <reference types="node" />
 export default class Downloader {
-    static download(url: string, destination: string): Promise<object | Error>;
-    static existsOrDownload(url: string, destination: string): Promise<object | Error>;
-    static checkOrDownload(url: string, sha1: string, destination: string): Promise<object | Error>;
+    static getFile(url: string): Promise<Buffer>;
+    static download(url: string, destination: string): Promise<void>;
+    static existsOrDownload(url: string, destination: string): Promise<void>;
+    static checkOrDownload(url: string, sha1: string | string[], destination: string): Promise<void>;
+    static unpack(file: string, destination: string): Promise<void>;
 }

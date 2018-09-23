@@ -1,18 +1,17 @@
 import { ClientOptions } from "../app";
-export declare class VersionManager {
-    private options;
-    constructor(options: ClientOptions);
-    getMinecraftVersion(id: string, type?: MinecraftVersionType): Promise<MinecraftVersion | null>;
-    static getMinecraftVersions(type?: MinecraftVersionType): Promise<MinecraftVersion[]>;
-    getForgeVersion(version: MinecraftVersion | string, type: ForgeVersionType): Promise<ForgeVersion | null>;
-    static getForgeVersions(): Promise<ForgeVersion[]>;
-}
+import { MinecraftLibraryManifest } from './Manifests';
+import { MinecraftVersionType, ForgeVersionType } from './Manifests';
+import { MinecraftAssetIndex } from './Manifests';
 export declare class ForgeVersion {
     id: number;
-    url: string;
     version: string;
     mcversion: string;
+    universal: string;
+    installer: string;
     constructor(id: number, version: string, mcversion: string);
+    static getCustomVersion(build: number, version: string, mcversion: MinecraftVersion | string): ForgeVersion;
+    static getPromotedVersion(version: MinecraftVersion | string, type: ForgeVersionType): Promise<ForgeVersion | null>;
+    static getVersions(): Promise<ForgeVersion[]>;
 }
 export declare class MinecraftVersion {
     id: string;
@@ -20,7 +19,10 @@ export declare class MinecraftVersion {
     url: string;
     time: Date;
     releaseTime: Date;
-    private constructor();
+    cache: string;
+    constructor(id: string, type: MinecraftVersionType, url: string, time: Date, releaseTime: Date, cache?: string);
+    getLibraryManifest(): Promise<MinecraftLibraryManifest>;
+    getAssetIndex(options: ClientOptions): Promise<MinecraftAssetIndex>;
+    static getVersion(id: string, options: ClientOptions, type?: MinecraftVersionType): Promise<MinecraftVersion | null>;
+    static getVersions(type?: MinecraftVersionType): Promise<MinecraftVersion[]>;
 }
-export declare type MinecraftVersionType = 'release' | 'snapshot';
-export declare type ForgeVersionType = 'latest' | 'recommended';

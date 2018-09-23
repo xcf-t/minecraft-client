@@ -3,7 +3,7 @@
 ## Usage
 
 ```Typescript
-import {MinecraftClient} from 'dist/app';
+import {MinecraftClient} from 'minecraft-client';
 
 //Vanilla Minecraft Client
 let client: MinecraftClient = await MinecraftClient.getMinecraftClient("1.12.2", {

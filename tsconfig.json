@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "esnext",
     "sourceMap": true,
-    "declaration": false,
+    "declaration": true,
     "outDir": "dist/"
   },
   "exclude": [
