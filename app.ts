@@ -8,9 +8,13 @@ import {AssetManager}   from "./utils/Assets";
 
 import {child_process} from 'mz';
 
-export {Authentication} from "./utils/Authentication";
 import {Authentication, AuthenticationResult} from "./utils/Authentication";
 import {ForgeVersionDescription, ForgeVersionType} from "./utils/Manifests";
+import {CustomForgeMod, CurseForgeMod, ForgeMod} from "./utils/Mods";
+
+export {Authentication} from "./utils/Authentication";
+export {ForgeVersion, MinecraftVersion} from "./utils/Versions";
+export {CurseForgeMod, CustomForgeMod, ForgeMod} from "./utils/Mods";
 
 export class MinecraftClient {
 
@@ -79,6 +83,19 @@ export class MinecraftClient {
         if(this.forge)
             await this.libraryManager.installForgeLibraries(this.forge);
         await this.assetManager.install();
+    }
+
+    public async checkMods(...mods: ForgeMod[]): Promise<void> {
+        for(let i = 0; i < mods.length; i++) {
+            let mod: ForgeMod = mods[i];
+
+            let file: string = path.join(this.options.gameDir, 'mods', `${mod.name.replace(/\s/g, '_')}.jar`);
+
+            if(mod.sha1)
+                await Downloader.checkOrDownload(mod.url, mod.sha1, file);
+            else
+                await Downloader.existsOrDownload(mod.url, file);
+        }
     }
 
     public async launch(auth: AuthenticationResult): Promise<child_process.ChildProcess> {

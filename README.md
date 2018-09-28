@@ -43,3 +43,18 @@ client.launch(await Authentication.login("Username (Email)", "Password"));
 //Token Authentication
 client.launch(await Authentication.refresh("accessToken"));
 ```
+
+### Mods
+
+```TypeScript
+import {CurseForgeMod, CustomForgeMod, ForgeMod} from 'minecraft-client';
+
+//List Mods
+let mods: ForgeMod[] = [
+    new CurseForgeMod("Iron Chests", 228756, 2595146),
+    new CustomForgeMod("DynmapBlockScan", "http://www.dynmap.us/builds/DynmapBlockScan/DynmapBlockScan-3.0-alpha-1-forge-1.12.2.jar")
+];
+
+//Install Mods
+client.checkMods(mods);
+```
