@@ -16,9 +16,10 @@ class LibraryManager {
         this.versionType = "";
         this.assetIndex = "";
     }
-    async installMinecraftLibraries() {
+    async installMinecraftLibraries(progress) {
         let data = await this.version.getLibraryManifest();
         for (let i = 0; i < data.libraries.length; i++) {
+            progress.call(i / data.libraries.length);
             let lib = data.libraries[i];
             if (!LibraryHelper.applyRules(lib.rules)) {
                 continue;
@@ -37,12 +38,13 @@ class LibraryManager {
         }
         let client = data.downloads.client;
         await Downloader_1.default.checkOrDownload(client.url, client.sha1, path.join(this.options.gameDir, 'versions', this.version.id, this.version.id + '.jar'));
+        progress.call(1);
         this.mainClass = data.mainClass;
         this.minecraftArguments = data.minecraftArguments;
         this.versionType = data.type;
         this.assetIndex = data.assets;
     }
-    async installForgeLibraries(version) {
+    async installForgeLibraries(version, progress) {
         let res = await fetch.default(version.installer);
         let data = await new Promise((accept, reject) => {
             res.body.pipe(unzipper.Parse())
@@ -63,20 +65,21 @@ class LibraryManager {
                 .on('close', () => reject());
         });
         let libraries = JSON.parse(data.toString());
-        let libs = libraries.versionInfo.libraries;
+        let libs = libraries.versionInfo.libraries.filter(value => value.clientreq !== false);
+        ;
         for (let i = 0; i < libs.length; i++) {
             let lib = libs[i];
-            if (lib.clientreq !== false) {
-                let dest = path.join(this.options.gameDir, 'libraries', LibraryHelper.getArtifactPath(lib));
-                mkdir(path.join(dest, '..'));
-                let url = LibraryHelper.getArtifactUrl(lib);
-                await Downloader_1.default.checkOrDownload(url, lib.checksums, dest);
-            }
+            progress.call(i / libs.length);
+            let dest = path.join(this.options.gameDir, 'libraries', LibraryHelper.getArtifactPath(lib));
+            mkdir(path.join(dest, '..'));
+            let url = LibraryHelper.getArtifactUrl(lib);
+            await Downloader_1.default.checkOrDownload(url, lib.checksums, dest);
         }
         let sha1 = (await Downloader_1.default.getFile(version.universal + '.sha1')).toString();
         let dest = path.join(this.options.gameDir, 'libraries', 'net', 'minecraftforge', 'forge', version.version, `${version.mcversion}-${version.version}`, `forge-${version.mcversion}-${version.version}-universal.jar`);
         mkdir(path.join(dest, '..'));
         await Downloader_1.default.checkOrDownload(version.universal, sha1, dest);
+        progress.call(1);
         this.mainClass = libraries.versionInfo.mainClass;
         this.minecraftArguments = libraries.versionInfo.minecraftArguments;
         this.versionType = 'ignored';

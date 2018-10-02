@@ -10,6 +10,7 @@ import * as tmp from './TempHelper';
 import {Endpoints, Utils} from "./Constants";
 import {ForgeLibrary, ForgeLibraryManifest, MinecraftArtifact, MinecraftLibraryManifest} from "./Manifests";
 import {AuthenticationResult} from "./Authentication";
+import {InstallationProgress} from "./InstallationProgress";
 
 
 export class LibraryManager {
@@ -35,14 +36,17 @@ export class LibraryManager {
         this.assetIndex = "";
     }
 
-    public async installMinecraftLibraries(): Promise<void> {
+    public async installMinecraftLibraries(progress: InstallationProgress): Promise<void> {
         let data: MinecraftLibraryManifest = await this.version.getLibraryManifest();
 
         for(let i = 0; i < data.libraries.length; i++) {
+            progress.call(i/data.libraries.length);
+
             let lib = data.libraries[i];
             if(!LibraryHelper.applyRules(lib.rules)) {
                 continue;
             }
+
             if(lib.downloads.artifact) {
                 let dest: string = path.join(this.options.gameDir, 'libraries', lib.downloads.artifact.path);
                 mkdir(path.join(dest, '..'));
@@ -66,6 +70,8 @@ export class LibraryManager {
         let client: MinecraftArtifact = data.downloads.client;
         await Downloader.checkOrDownload(client.url, client.sha1, path.join(this.options.gameDir, 'versions', this.version.id, this.version.id + '.jar'));
 
+        progress.call(1);
+
         this.mainClass = data.mainClass;
         this.minecraftArguments = data.minecraftArguments;
 
@@ -74,7 +80,7 @@ export class LibraryManager {
         this.assetIndex = data.assets;
     }
 
-    public async installForgeLibraries(version: ForgeVersion): Promise<void> {
+    public async installForgeLibraries(version: ForgeVersion, progress: InstallationProgress): Promise<void> {
         let res: fetch.Response = await fetch.default(version.installer);
         let data: Buffer = await new Promise<Buffer>((accept, reject) => {
             res.body.pipe(unzipper.Parse())
@@ -95,21 +101,22 @@ export class LibraryManager {
         });
         let libraries: ForgeLibraryManifest = JSON.parse(data.toString());
 
-        let libs: ForgeLibrary[] = libraries.versionInfo.libraries;
+        let libs: ForgeLibrary[] = libraries.versionInfo.libraries.filter(value => value.clientreq !== false);;
         for(let i = 0; i < libs.length; i++) {
             let lib = libs[i];
-            if(lib.clientreq !== false) {
-                let dest: string = path.join(this.options.gameDir, 'libraries', LibraryHelper.getArtifactPath(lib));
-                mkdir(path.join(dest, '..'));
-                let url: string = LibraryHelper.getArtifactUrl(lib);
+            progress.call(i/libs.length);
 
-                await Downloader.checkOrDownload(url, lib.checksums, dest);
-            }
+            let dest: string = path.join(this.options.gameDir, 'libraries', LibraryHelper.getArtifactPath(lib));
+            mkdir(path.join(dest, '..'));
+            let url: string = LibraryHelper.getArtifactUrl(lib);
+
+            await Downloader.checkOrDownload(url, lib.checksums, dest);
         }
         let sha1: string = (await Downloader.getFile(version.universal + '.sha1')).toString();
         let dest: string = path.join(this.options.gameDir, 'libraries', 'net', 'minecraftforge', 'forge', version.version, `${version.mcversion}-${version.version}`, `forge-${version.mcversion}-${version.version}-universal.jar`);
         mkdir(path.join(dest, '..'));
         await Downloader.checkOrDownload(version.universal, sha1, dest);
+        progress.call(1);
         this.mainClass = libraries.versionInfo.mainClass;
         this.minecraftArguments = libraries.versionInfo.minecraftArguments;
 

@@ -6,6 +6,7 @@ import {Endpoints} from "./Constants";
 
 import * as mkdir from 'mkdirp';
 import * as path from 'path';
+import {InstallationProgress} from "./InstallationProgress";
 
 export class AssetManager {
 
@@ -17,12 +18,12 @@ export class AssetManager {
         this.version = version;
     }
 
-    public async install(): Promise<void> {
+    public async install(progress: InstallationProgress): Promise<void> {
         let index: MinecraftAssetIndex = await this.version.getAssetIndex(this.options);
-        let tasks: Promise<void>[] = [];
         let keys: string[] = Object.keys(index.objects);
         for(let i = 0; i < keys.length; i++) {
             let asset: MinecraftAsset = index.objects[keys[i]];
+            progress.call(i/keys.length);
             let dest: string = path.join(
                 this.options.gameDir,
                 'assets',
@@ -30,13 +31,13 @@ export class AssetManager {
                 AssetManager.getPath(asset.hash)
             );
             mkdir(path.join(dest, '..'));
-            tasks.push(Downloader.checkOrDownload(
+            await Downloader.checkOrDownload(
                 Endpoints.MINECRAFT_ASSET_SERVER + AssetManager.getPath(asset.hash),
                 asset.hash,
                 dest
-            ));
+            );
         }
-        await Promise.all(tasks);
+        progress.call(1);
     }
 
     private static getPath(hash: string): string {

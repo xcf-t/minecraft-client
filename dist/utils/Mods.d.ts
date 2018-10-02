@@ -9,7 +9,7 @@ export declare class CurseForgeMod implements ForgeMod {
     sha1: string;
     type: SourceType;
     url: string;
-    constructor(name: string, projectId: string, fileId: string, sha1?: string);
+    constructor(name: string, projectId: string | number, fileId: string | number, sha1?: string);
 }
 export declare class CustomForgeMod implements ForgeMod {
     name: string;

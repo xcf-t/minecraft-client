@@ -6,12 +6,17 @@ const Downloader_1 = require("./utils/Downloader");
 const Libraries_1 = require("./utils/Libraries");
 const Assets_1 = require("./utils/Assets");
 const mz_1 = require("mz");
+const InstallationProgress_1 = require("./utils/InstallationProgress");
 var Authentication_1 = require("./utils/Authentication");
 exports.Authentication = Authentication_1.Authentication;
-const Authentication_2 = require("./utils/Authentication");
-const Mods_1 = require("./utils/Mods");
+var Versions_2 = require("./utils/Versions");
+exports.ForgeVersion = Versions_2.ForgeVersion;
+exports.MinecraftVersion = Versions_2.MinecraftVersion;
+var Mods_1 = require("./utils/Mods");
+exports.CurseForgeMod = Mods_1.CurseForgeMod;
+exports.CustomForgeMod = Mods_1.CustomForgeMod;
 class MinecraftClient {
-    constructor(version, forge, options = MinecraftClient.defaultConfig) {
+    constructor(version, forge, options = MinecraftClient.defaultConfig, progress) {
         for (let i in MinecraftClient.defaultConfig)
             if (!options[i])
                 options[i] = MinecraftClient.defaultConfig[i];
@@ -20,14 +25,15 @@ class MinecraftClient {
         this.forge = forge;
         this.libraryManager = new Libraries_1.LibraryManager(options, version);
         this.assetManager = new Assets_1.AssetManager(options, version);
+        this.progress = progress || InstallationProgress_1.InstallationProgress.callback();
     }
-    static getMinecraftClient(version, options) {
-        return this.getClient(version, null, options);
+    static getMinecraftClient(version, options, progress) {
+        return this.getClient(version, null, options, progress);
     }
-    static getForgeClient(version, forge, options) {
-        return this.getClient(version, forge, options);
+    static getForgeClient(version, forge, options, progress) {
+        return this.getClient(version, forge, options, progress);
     }
-    static async getClient(version, forge, options) {
+    static async getClient(version, forge, options, progress) {
         let mcVersion;
         if (typeof version === 'string') {
             mcVersion = await Versions_1.MinecraftVersion.getVersion(version, options);
@@ -46,23 +52,32 @@ class MinecraftClient {
         }
         if (!mcVersion)
             return null;
-        return new MinecraftClient(mcVersion, forgeVersion, options);
+        return new MinecraftClient(mcVersion, forgeVersion, options, progress);
     }
     async checkInstallation() {
-        await this.libraryManager.installMinecraftLibraries();
-        if (this.forge)
-            await this.libraryManager.installForgeLibraries(this.forge);
-        await this.assetManager.install();
+        await this.libraryManager.installMinecraftLibraries(this.progress);
+        this.progress.step();
+        console.log("Installed Libraries");
+        if (this.forge) {
+            await this.libraryManager.installForgeLibraries(this.forge, this.progress);
+            this.progress.step();
+            console.log("Installed Forge Libraries");
+        }
+        await this.assetManager.install(this.progress);
+        this.progress.step();
+        console.log("Installed Assets");
     }
     async checkMods(...mods) {
         for (let i = 0; i < mods.length; i++) {
             let mod = mods[i];
-            let file = path.join(this.options.gameDir, 'mods', `${mod.name}.jar`);
+            this.progress.call(i / mods.length);
+            let file = path.join(this.options.gameDir, 'mods', `${mod.name.replace(/\s/g, '_')}.jar`);
             if (mod.sha1)
                 await Downloader_1.default.checkOrDownload(mod.url, mod.sha1, file);
             else
                 await Downloader_1.default.existsOrDownload(mod.url, file);
         }
+        this.progress.step();
     }
     async launch(auth) {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
@@ -86,11 +101,4 @@ MinecraftClient.defaultConfig = {
     javaExecutable: 'java'
 };
 exports.MinecraftClient = MinecraftClient;
-MinecraftClient.getForgeClient("1.12.2", "recommended", {
-    gameDir: '/tmp/.mmc'
-}).then(async (client) => {
-    await client.checkInstallation();
-    await client.checkMods(new Mods_1.CustomForgeMod("ReplayMod", "https://www.replaymod.com/download/download_new.php?version=1.12.2-2.1.4&mirror=true", "6a23a0020fe62a372c6bc3726cb7c8106f9b46e9"));
-    await client.launch(Authentication_2.Authentication.offline("Nobody"));
-});
 //# sourceMappingURL=app.js.map

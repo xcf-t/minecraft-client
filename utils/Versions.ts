@@ -51,8 +51,6 @@ export class ForgeVersion {
         let buildNumber: number = manifest.promos[`${id}-${type}`];
         let build: ForgeBuild = manifest.number[buildNumber];
 
-        console.log(build);
-
         return new ForgeVersion(build.build, build.version, build.mcversion);
     }
 

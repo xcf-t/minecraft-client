@@ -2,6 +2,7 @@ import { ForgeVersion, MinecraftVersion } from "./Versions";
 import { ClientOptions } from "../app";
 import { MinecraftArtifact } from "./Manifests";
 import { AuthenticationResult } from "./Authentication";
+import { InstallationProgress } from "./InstallationProgress";
 export declare class LibraryManager {
     options: ClientOptions;
     version: MinecraftVersion;
@@ -10,8 +11,8 @@ export declare class LibraryManager {
     versionType: string;
     assetIndex: string;
     constructor(options: ClientOptions, version: MinecraftVersion);
-    installMinecraftLibraries(): Promise<void>;
-    installForgeLibraries(version: ForgeVersion): Promise<void>;
+    installMinecraftLibraries(progress: InstallationProgress): Promise<void>;
+    installForgeLibraries(version: ForgeVersion, progress: InstallationProgress): Promise<void>;
     unpackNatives(version: MinecraftVersion): Promise<string>;
     getClasspath(): Promise<string>;
     getLaunchArguments(auth: AuthenticationResult): string[];

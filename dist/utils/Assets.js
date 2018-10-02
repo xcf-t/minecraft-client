@@ -9,17 +9,17 @@ class AssetManager {
         this.options = options;
         this.version = version;
     }
-    async install() {
+    async install(progress) {
         let index = await this.version.getAssetIndex(this.options);
-        let tasks = [];
         let keys = Object.keys(index.objects);
         for (let i = 0; i < keys.length; i++) {
             let asset = index.objects[keys[i]];
+            progress.call(i / keys.length);
             let dest = path.join(this.options.gameDir, 'assets', 'objects', AssetManager.getPath(asset.hash));
             mkdir(path.join(dest, '..'));
-            tasks.push(Downloader_1.default.checkOrDownload(Constants_1.Endpoints.MINECRAFT_ASSET_SERVER + AssetManager.getPath(asset.hash), asset.hash, dest));
+            await Downloader_1.default.checkOrDownload(Constants_1.Endpoints.MINECRAFT_ASSET_SERVER + AssetManager.getPath(asset.hash), asset.hash, dest);
         }
-        await Promise.all(tasks);
+        progress.call(1);
     }
     static getPath(hash) {
         return hash.substring(0, 2) + '/' + hash;

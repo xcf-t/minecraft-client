@@ -33,7 +33,6 @@ class ForgeVersion {
             id = version.id;
         let buildNumber = manifest.promos[`${id}-${type}`];
         let build = manifest.number[buildNumber];
-        console.log(build);
         return new ForgeVersion(build.build, build.version, build.mcversion);
     }
     static async getVersions() {
