@@ -23,6 +23,17 @@ let client: MinecraftClient = await MinecraftClient.getForgeClient("1.12.2", {
     gameDir: '/home/username/.minecraft'
 });
 
+import {InstallationProgress} from 'minecraft-client';
+
+//Vanilla Minecraft Client with Progress Callback
+let client: MinecraftClient = await MinecraftClient.getMinecraftClient("1.12.2", {
+    gameDir: '/home/username/.minecraft'
+}, InstallationProgress.callback(() => {
+    //Step Callback
+}, progress => {
+    //Progress Callback (in %)
+}));
+
 ```
 
 Valid Forge version types:

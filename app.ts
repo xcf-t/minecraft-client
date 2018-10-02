@@ -15,6 +15,7 @@ import {InstallationProgress} from "./utils/InstallationProgress";
 
 export {Authentication} from "./utils/Authentication";
 export {ForgeVersion, MinecraftVersion} from "./utils/Versions";
+export {InstallationProgress} from "./utils/InstallationProgress";
 export {CurseForgeMod, CustomForgeMod, ForgeMod} from "./utils/Mods";
 
 export class MinecraftClient {
