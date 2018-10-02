@@ -13,10 +13,11 @@ import {ForgeVersionDescription, ForgeVersionType} from "./utils/Manifests";
 import {CustomForgeMod, CurseForgeMod, ForgeMod} from "./utils/Mods";
 import {InstallationProgress} from "./utils/InstallationProgress";
 
-export {Authentication} from "./utils/Authentication";
+export {Authentication, AuthenticationResult} from "./utils/Authentication";
 export {ForgeVersion, MinecraftVersion} from "./utils/Versions";
 export {InstallationProgress} from "./utils/InstallationProgress";
 export {CurseForgeMod, CustomForgeMod, ForgeMod} from "./utils/Mods";
+export {ForgeVersionDescription, ForgeVersionType} from "./utils/Manifests";
 
 export class MinecraftClient {
 
