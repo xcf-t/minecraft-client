@@ -157,7 +157,7 @@ export class LibraryManager {
         args = args.replace("${auth_player_name}", auth.name);
         args = args.replace("${version_name}", this.version.id);
         args = args.replace("${game_directory}", this.options.gameDir);
-        args = args.replace("${assets_root}", path.join(__dirname, 'assets'));
+        args = args.replace("${assets_root}", path.join(this.options.gameDir, 'assets'));
         args = args.replace("${assets_index_name}", this.assetIndex);
         args = args.replace("${auth_uuid}", auth.uuid);
         args = args.replace("${auth_access_token}", auth.token || "null");
