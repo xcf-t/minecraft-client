@@ -45,6 +45,9 @@ Valid Forge version types:
 ```TypeScript
 import {Authentication} from 'minecraft-client';
 
+//This is required to download all the Libraries and assets
+await client.checkInstallation();
+
 //Offline Authentication
 client.launch(Authentication.offline("Username"));
 
