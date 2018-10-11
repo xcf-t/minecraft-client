@@ -88,15 +88,12 @@ export class MinecraftClient {
     public async checkInstallation(): Promise<void> {
         await this.libraryManager.installMinecraftLibraries(this.progress);
         this.progress.step();
-        console.log("Installed Libraries");
         if(this.forge) {
             await this.libraryManager.installForgeLibraries(this.forge, this.progress);
             this.progress.step();
-            console.log("Installed Forge Libraries")
         }
         await this.assetManager.install(this.progress);
         this.progress.step();
-        console.log("Installed Assets");
     }
 
     public async checkMods(...mods: ForgeMod[]): Promise<void> {
