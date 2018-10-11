@@ -86,20 +86,18 @@ export class MinecraftClient {
     }
 
     public async checkInstallation(): Promise<void> {
+        this.progress.step("Installing Libraries");
         await this.libraryManager.installMinecraftLibraries(this.progress);
-        this.progress.step();
-        console.log("Installed Libraries");
         if(this.forge) {
+            this.progress.step("Installing Forge Libraries");
             await this.libraryManager.installForgeLibraries(this.forge, this.progress);
-            this.progress.step();
-            console.log("Installed Forge Libraries")
         }
+        this.progress.step("Installing Assets");
         await this.assetManager.install(this.progress);
-        this.progress.step();
-        console.log("Installed Assets");
     }
 
     public async checkMods(...mods: ForgeMod[]): Promise<void> {
+        this.progress.step("Installing mod");
         for(let i = 0; i < mods.length; i++) {
             let mod: ForgeMod = mods[i];
 
@@ -112,7 +110,6 @@ export class MinecraftClient {
             else
                 await Downloader.existsOrDownload(mod.url, file);
         }
-        this.progress.step();
     }
 
     public async launch(auth: AuthenticationResult): Promise<child_process.ChildProcess> {

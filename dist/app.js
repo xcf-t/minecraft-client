@@ -57,19 +57,17 @@ class MinecraftClient {
         return new MinecraftClient(mcVersion, forgeVersion, options, progress);
     }
     async checkInstallation() {
+        this.progress.step("Installing Libraries");
         await this.libraryManager.installMinecraftLibraries(this.progress);
-        this.progress.step();
-        console.log("Installed Libraries");
         if (this.forge) {
+            this.progress.step("Installing Forge Libraries");
             await this.libraryManager.installForgeLibraries(this.forge, this.progress);
-            this.progress.step();
-            console.log("Installed Forge Libraries");
         }
+        this.progress.step("Installing Assets");
         await this.assetManager.install(this.progress);
-        this.progress.step();
-        console.log("Installed Assets");
     }
     async checkMods(...mods) {
+        this.progress.step("Installing mod");
         for (let i = 0; i < mods.length; i++) {
             let mod = mods[i];
             this.progress.call(i / mods.length);
@@ -79,7 +77,6 @@ class MinecraftClient {
             else
                 await Downloader_1.default.existsOrDownload(mod.url, file);
         }
-        this.progress.step();
     }
     async launch(auth) {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
