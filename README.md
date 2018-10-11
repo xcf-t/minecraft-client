@@ -28,7 +28,7 @@ import {InstallationProgress} from 'minecraft-client';
 //Vanilla Minecraft Client with Progress Callback
 let client: MinecraftClient = await MinecraftClient.getMinecraftClient("1.12.2", {
     gameDir: '/home/username/.minecraft'
-}, InstallationProgress.callback(() => {
+}, InstallationProgress.callback(currentStep => {
     //Step Callback
 }, progress => {
     //Progress Callback (in %)

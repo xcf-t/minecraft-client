@@ -1,4 +1,4 @@
-export declare type StepCallback = () => void;
+export declare type StepCallback = (currentStep: string) => void;
 export declare type ProgressCallback = (progress: number) => void;
 
 export class InstallationProgress {
@@ -16,9 +16,9 @@ export class InstallationProgress {
             this.progressCallback(progress);
     }
 
-    public step(): void {
+    public step(currentStep: string): void {
         if(this.stepCallback)
-            this.stepCallback();
+            this.stepCallback(currentStep);
         this.call(0);
     }
 

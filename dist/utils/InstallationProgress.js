@@ -9,9 +9,9 @@ class InstallationProgress {
         if (this.progressCallback)
             this.progressCallback(progress);
     }
-    step() {
+    step(currentStep) {
         if (this.stepCallback)
-            this.stepCallback();
+            this.stepCallback(currentStep);
         this.call(0);
     }
     static callback(step, progress) {
