@@ -121,7 +121,6 @@ export class MinecraftClient {
         args.push(classpath);
         args.push(...(this.options.javaArguments || []));
         args.push(...this.libraryManager.getLaunchArguments(auth));
-        console.log(classpath);
         let cp: child_process.ChildProcess = child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
         });
@@ -133,17 +132,6 @@ export class MinecraftClient {
     }
 
 }
-
-MinecraftClient.getForgeClient("1.12.2", "recommended", {
-    gameDir: '/tmp/.mmclient'
-}, InstallationProgress.callback(console.log, console.log)).then(async (client: MinecraftClient) => {
-    let mods: ForgeMod[] = [
-        new CurseForgeMod("Iron Chests", 228756, 2595146),
-    ];
-    await client.checkInstallation();
-    await client.checkMods(...mods);
-    await client.launch(Authentication.offline("202E"), true);
-});
 
 export declare type ClientOptions = {
     gameDir?: string,
