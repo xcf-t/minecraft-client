@@ -87,7 +87,6 @@ class MinecraftClient {
         args.push(classpath);
         args.push(...(this.options.javaArguments || []));
         args.push(...this.libraryManager.getLaunchArguments(auth));
-        console.log(classpath);
         let cp = mz_1.child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
         });

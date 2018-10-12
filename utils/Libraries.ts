@@ -189,6 +189,7 @@ export class LibraryManager {
         args = args.replace("${auth_access_token}", auth.token || "null");
         args = args.replace("${user_type}", "mojang");
         args = args.replace("${version_type}", this.versionType);
+        args = args.replace("${user_properties}", "{}");
         return [this.mainClass].concat(args.split(" "));
     }
 
