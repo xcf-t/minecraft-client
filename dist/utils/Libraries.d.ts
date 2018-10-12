@@ -10,6 +10,7 @@ export declare class LibraryManager {
     minecraftArguments: string;
     versionType: string;
     assetIndex: string;
+    classpath: string[];
     constructor(options: ClientOptions, version: MinecraftVersion);
     installMinecraftLibraries(progress: InstallationProgress): Promise<void>;
     installForgeLibraries(version: ForgeVersion, progress: InstallationProgress): Promise<void>;

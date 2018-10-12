@@ -1,6 +1,5 @@
 import {ForgeVersion, MinecraftVersion} from "./Versions";
 import * as path from 'path';
-import {fs} from 'mz';
 import {ClientOptions} from "../app";
 import Downloader from "./Downloader";
 import * as unzipper from 'unzipper';
@@ -25,9 +24,13 @@ export class LibraryManager {
 
     public assetIndex: string;
 
+    public classpath: string[];
+
     constructor(options: ClientOptions, version: MinecraftVersion) {
         this.options = options;
         this.version = version;
+
+        this.classpath = [];
 
         this.minecraftArguments = "";
         this.mainClass = "";
@@ -50,6 +53,9 @@ export class LibraryManager {
             if(lib.downloads.artifact) {
                 let dest: string = path.join(this.options.gameDir, 'libraries', lib.downloads.artifact.path);
                 mkdir(path.join(dest, '..'));
+
+                this.classpath.push(dest);
+
                 await Downloader.checkOrDownload(
                     lib.downloads.artifact.url,
                     lib.downloads.artifact.sha1,
@@ -59,6 +65,12 @@ export class LibraryManager {
             if(lib.natives) {
                 let classifier: string = lib.natives[Utils.platform];
                 let artifact: MinecraftArtifact = lib.downloads.classifiers[classifier];
+
+                if(!artifact.path)
+                    continue;
+
+                //natives to classpath?
+
                 let p: string = path.join(this.options.gameDir, 'libraries', artifact.path);
                 await Downloader.checkOrDownload(
                     artifact.url,
@@ -68,6 +80,9 @@ export class LibraryManager {
             }
         }
         let client: MinecraftArtifact = data.downloads.client;
+
+        this.classpath.push(`versions/${this.version.id}/${this.version.id}.jar`);
+
         await Downloader.checkOrDownload(client.url, client.sha1, path.join(this.options.gameDir, 'versions', this.version.id, this.version.id + '.jar'));
 
         progress.call(1);
@@ -108,6 +123,9 @@ export class LibraryManager {
 
             let dest: string = path.join(this.options.gameDir, 'libraries', LibraryHelper.getArtifactPath(lib));
             mkdir(path.join(dest, '..'));
+
+            this.classpath.push(dest);
+
             let url: string = LibraryHelper.getArtifactUrl(lib);
 
             await Downloader.checkOrDownload(url, lib.checksums, dest);
@@ -115,6 +133,9 @@ export class LibraryManager {
         let sha1: string = (await Downloader.getFile(version.universal + '.sha1')).toString();
         let dest: string = path.join(this.options.gameDir, 'libraries', 'net', 'minecraftforge', 'forge', version.version, `${version.mcversion}-${version.version}`, `forge-${version.mcversion}-${version.version}-universal.jar`);
         mkdir(path.join(dest, '..'));
+
+        this.classpath.push(dest);
+
         await Downloader.checkOrDownload(version.universal, sha1, dest);
         progress.call(1);
         this.mainClass = libraries.versionInfo.mainClass;
@@ -135,6 +156,10 @@ export class LibraryManager {
             if(lib.natives[Utils.platform]) {
                 let classifier: string = lib.natives[Utils.platform];
                 let artifact: MinecraftArtifact = lib.downloads.classifiers[classifier];
+
+                if(!artifact.path)
+                    continue;
+
                 let p: string = path.join(this.options.gameDir, 'libraries', artifact.path);
                 await Downloader.unpack(p, tmpDir);
             }
@@ -143,10 +168,11 @@ export class LibraryManager {
     }
 
     public async getClasspath(): Promise<string> {
-        let files: string[] = await tmp.tree(path.join(this.options.gameDir, 'libraries'));
+        /*let files: string[] = await tmp.tree(path.join(this.options.gameDir, 'libraries'));
         files = files.map(file => path.join('libraries', file));
         files.push(`versions/${this.version.id}/${this.version.id}.jar`);
-        return files.join(Utils.classpathSeparator);
+        return files.join(Utils.classpathSeparator);*/
+        return this.classpath.join(Utils.classpathSeparator);
     }
 
     //--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker --versionType Forge

@@ -6,17 +6,19 @@ const Downloader_1 = require("./utils/Downloader");
 const Libraries_1 = require("./utils/Libraries");
 const Assets_1 = require("./utils/Assets");
 const mz_1 = require("mz");
+const Authentication_1 = require("./utils/Authentication");
+const Mods_1 = require("./utils/Mods");
 const InstallationProgress_1 = require("./utils/InstallationProgress");
-var Authentication_1 = require("./utils/Authentication");
-exports.Authentication = Authentication_1.Authentication;
+var Authentication_2 = require("./utils/Authentication");
+exports.Authentication = Authentication_2.Authentication;
 var Versions_2 = require("./utils/Versions");
 exports.ForgeVersion = Versions_2.ForgeVersion;
 exports.MinecraftVersion = Versions_2.MinecraftVersion;
 var InstallationProgress_2 = require("./utils/InstallationProgress");
 exports.InstallationProgress = InstallationProgress_2.InstallationProgress;
-var Mods_1 = require("./utils/Mods");
-exports.CurseForgeMod = Mods_1.CurseForgeMod;
-exports.CustomForgeMod = Mods_1.CustomForgeMod;
+var Mods_2 = require("./utils/Mods");
+exports.CurseForgeMod = Mods_2.CurseForgeMod;
+exports.CustomForgeMod = Mods_2.CustomForgeMod;
 class MinecraftClient {
     constructor(version, forge, options = MinecraftClient.defaultConfig, progress) {
         for (let i in MinecraftClient.defaultConfig)
@@ -67,7 +69,7 @@ class MinecraftClient {
         await this.assetManager.install(this.progress);
     }
     async checkMods(...mods) {
-        this.progress.step("Installing mod");
+        this.progress.step("Installing Mods+#");
         for (let i = 0; i < mods.length; i++) {
             let mod = mods[i];
             this.progress.call(i / mods.length);
@@ -78,7 +80,7 @@ class MinecraftClient {
                 await Downloader_1.default.existsOrDownload(mod.url, file);
         }
     }
-    async launch(auth) {
+    async launch(auth, redirectOutput) {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
         let args = [];
         args.push(`-Djava.library.path=${this.nativeDir}`);
@@ -87,11 +89,14 @@ class MinecraftClient {
         args.push(classpath);
         args.push(...(this.options.javaArguments || []));
         args.push(...this.libraryManager.getLaunchArguments(auth));
+        console.log(classpath);
         let cp = mz_1.child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
         });
-        cp.stdout.pipe(process.stdout);
-        cp.stderr.pipe(process.stderr);
+        if (redirectOutput) {
+            cp.stdout.pipe(process.stdout);
+            cp.stderr.pipe(process.stderr);
+        }
         return cp;
     }
 }
@@ -100,4 +105,14 @@ MinecraftClient.defaultConfig = {
     javaExecutable: 'java'
 };
 exports.MinecraftClient = MinecraftClient;
+MinecraftClient.getForgeClient("1.12.2", "recommended", {
+    gameDir: '/tmp/.mmclient'
+}, InstallationProgress_1.InstallationProgress.callback(console.log, console.log)).then(async (client) => {
+    let mods = [
+        new Mods_1.CurseForgeMod("Iron Chests", 228756, 2595146),
+    ];
+    await client.checkInstallation();
+    await client.checkMods(...mods);
+    await client.launch(Authentication_1.Authentication.offline("202E"), true);
+});
 //# sourceMappingURL=app.js.map

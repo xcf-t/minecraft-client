@@ -10,9 +10,11 @@ const Downloader_1 = require("./Downloader");
 class ForgeVersion {
     constructor(id, version, mcversion) {
         this.id = id;
+        this.version = version;
+        if (mcversion === '1.7.10') //Hacky solution because forge is inconsistent
+            version += '-' + mcversion;
         this.installer = Constants_1.Endpoints.FORGE_MAVEN_ARTIFACT + `${mcversion}-${version}/forge-${mcversion}-${version}-installer.jar`;
         this.universal = Constants_1.Endpoints.FORGE_MAVEN_ARTIFACT + `${mcversion}-${version}/forge-${mcversion}-${version}-universal.jar`;
-        this.version = version;
         this.mcversion = mcversion;
     }
     static getCustomVersion(build, version, mcversion) {

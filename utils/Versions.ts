@@ -23,9 +23,11 @@ export class ForgeVersion {
 
     constructor(id: number, version: string, mcversion: string) {
         this.id = id;
+        this.version = version;
+        if(mcversion === '1.7.10') //Hacky solution because forge is inconsistent
+            version += '-' + mcversion;
         this.installer = Endpoints.FORGE_MAVEN_ARTIFACT + `${mcversion}-${version}/forge-${mcversion}-${version}-installer.jar`;
         this.universal = Endpoints.FORGE_MAVEN_ARTIFACT + `${mcversion}-${version}/forge-${mcversion}-${version}-universal.jar`;
-        this.version = version;
         this.mcversion = mcversion;
     }
 

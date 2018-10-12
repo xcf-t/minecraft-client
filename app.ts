@@ -97,7 +97,7 @@ export class MinecraftClient {
     }
 
     public async checkMods(...mods: ForgeMod[]): Promise<void> {
-        this.progress.step("Installing mod");
+        this.progress.step("Installing Mods");
         for(let i = 0; i < mods.length; i++) {
             let mod: ForgeMod = mods[i];
 
@@ -112,7 +112,7 @@ export class MinecraftClient {
         }
     }
 
-    public async launch(auth: AuthenticationResult): Promise<child_process.ChildProcess> {
+    public async launch(auth: AuthenticationResult, redirectOutput?: boolean): Promise<child_process.ChildProcess> {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
         let args: string[] = [];
         args.push(`-Djava.library.path=${this.nativeDir}`);
@@ -121,16 +121,29 @@ export class MinecraftClient {
         args.push(classpath);
         args.push(...(this.options.javaArguments || []));
         args.push(...this.libraryManager.getLaunchArguments(auth));
-
+        console.log(classpath);
         let cp: child_process.ChildProcess = child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
         });
-        cp.stdout.pipe(process.stdout);
-        cp.stderr.pipe(process.stderr);
+        if(redirectOutput) {
+            cp.stdout.pipe(process.stdout);
+            cp.stderr.pipe(process.stderr);
+        }
         return cp;
     }
 
 }
+
+MinecraftClient.getForgeClient("1.12.2", "recommended", {
+    gameDir: '/tmp/.mmclient'
+}, InstallationProgress.callback(console.log, console.log)).then(async (client: MinecraftClient) => {
+    let mods: ForgeMod[] = [
+        new CurseForgeMod("Iron Chests", 228756, 2595146),
+    ];
+    await client.checkInstallation();
+    await client.checkMods(...mods);
+    await client.launch(Authentication.offline("202E"), true);
+});
 
 export declare type ClientOptions = {
     gameDir?: string,

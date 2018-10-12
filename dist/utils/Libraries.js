@@ -11,6 +11,7 @@ class LibraryManager {
     constructor(options, version) {
         this.options = options;
         this.version = version;
+        this.classpath = [];
         this.minecraftArguments = "";
         this.mainClass = "";
         this.versionType = "";
@@ -27,16 +28,21 @@ class LibraryManager {
             if (lib.downloads.artifact) {
                 let dest = path.join(this.options.gameDir, 'libraries', lib.downloads.artifact.path);
                 mkdir(path.join(dest, '..'));
+                this.classpath.push(dest);
                 await Downloader_1.default.checkOrDownload(lib.downloads.artifact.url, lib.downloads.artifact.sha1, dest);
             }
             if (lib.natives) {
                 let classifier = lib.natives[Constants_1.Utils.platform];
                 let artifact = lib.downloads.classifiers[classifier];
+                if (!artifact.path)
+                    continue;
+                //natives to classpath?
                 let p = path.join(this.options.gameDir, 'libraries', artifact.path);
                 await Downloader_1.default.checkOrDownload(artifact.url, artifact.sha1, p);
             }
         }
         let client = data.downloads.client;
+        this.classpath.push(`versions/${this.version.id}/${this.version.id}.jar`);
         await Downloader_1.default.checkOrDownload(client.url, client.sha1, path.join(this.options.gameDir, 'versions', this.version.id, this.version.id + '.jar'));
         progress.call(1);
         this.mainClass = data.mainClass;
@@ -72,12 +78,14 @@ class LibraryManager {
             progress.call(i / libs.length);
             let dest = path.join(this.options.gameDir, 'libraries', LibraryHelper.getArtifactPath(lib));
             mkdir(path.join(dest, '..'));
+            this.classpath.push(dest);
             let url = LibraryHelper.getArtifactUrl(lib);
             await Downloader_1.default.checkOrDownload(url, lib.checksums, dest);
         }
         let sha1 = (await Downloader_1.default.getFile(version.universal + '.sha1')).toString();
         let dest = path.join(this.options.gameDir, 'libraries', 'net', 'minecraftforge', 'forge', version.version, `${version.mcversion}-${version.version}`, `forge-${version.mcversion}-${version.version}-universal.jar`);
         mkdir(path.join(dest, '..'));
+        this.classpath.push(dest);
         await Downloader_1.default.checkOrDownload(version.universal, sha1, dest);
         progress.call(1);
         this.mainClass = libraries.versionInfo.mainClass;
@@ -96,6 +104,8 @@ class LibraryManager {
             if (lib.natives[Constants_1.Utils.platform]) {
                 let classifier = lib.natives[Constants_1.Utils.platform];
                 let artifact = lib.downloads.classifiers[classifier];
+                if (!artifact.path)
+                    continue;
                 let p = path.join(this.options.gameDir, 'libraries', artifact.path);
                 await Downloader_1.default.unpack(p, tmpDir);
             }
@@ -103,10 +113,11 @@ class LibraryManager {
         return tmpDir;
     }
     async getClasspath() {
-        let files = await tmp.tree(path.join(this.options.gameDir, 'libraries'));
+        /*let files: string[] = await tmp.tree(path.join(this.options.gameDir, 'libraries'));
         files = files.map(file => path.join('libraries', file));
         files.push(`versions/${this.version.id}/${this.version.id}.jar`);
-        return files.join(Constants_1.Utils.classpathSeparator);
+        return files.join(Utils.classpathSeparator);*/
+        return this.classpath.join(Constants_1.Utils.classpathSeparator);
     }
     //--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker --versionType Forge
     //--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}
