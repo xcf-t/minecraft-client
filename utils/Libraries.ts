@@ -167,7 +167,7 @@ export class LibraryManager {
         return tmpDir;
     }
 
-    public async getClasspath(): Promise<string> {
+    public getClasspath(): string {
         /*let files: string[] = await tmp.tree(path.join(this.options.gameDir, 'libraries'));
         files = files.map(file => path.join('libraries', file));
         files.push(`versions/${this.version.id}/${this.version.id}.jar`);

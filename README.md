@@ -1,5 +1,7 @@
 # Minecraft Client
 
+[![NPM](https://nodei.co/npm/minecraft-client.png?compact=true)](https://nodei.co/npm/minecraft-client/)
+
 ## Usage
 
 ```Typescript

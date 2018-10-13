@@ -1,12 +1,13 @@
 import {ForgeVersion, MinecraftVersion} from "./utils/Versions";
 
 import * as path from 'path';
+
 import Downloader from "./utils/Downloader";
 
 import {LibraryManager} from "./utils/Libraries";
 import {AssetManager}   from "./utils/Assets";
 
-import {child_process} from 'mz';
+import {child_process, fs} from 'mz';
 
 import {Authentication, AuthenticationResult} from "./utils/Authentication";
 import {ForgeVersionDescription, ForgeVersionType} from "./utils/Manifests";
@@ -96,19 +97,44 @@ export class MinecraftClient {
         await this.assetManager.install(this.progress);
     }
 
-    public async checkMods(...mods: ForgeMod[]): Promise<void> {
+    public async checkMods(mods: ForgeMod[], exclusive: boolean): Promise<void> {
         this.progress.step("Installing Mods");
+
+        let files: string[];
+        if(exclusive)
+            files = await fs.readdir(path.join(this.options.gameDir, 'mods'));
+        else
+            files = [];
+
+        files = files.filter(value => value.indexOf('.jar') !== -1);
+
         for(let i = 0; i < mods.length; i++) {
             let mod: ForgeMod = mods[i];
 
+            let id: string = mod.name.replace(/\s/g, '_');
+
             this.progress.call(i/mods.length);
 
-            let file: string = path.join(this.options.gameDir, 'mods', `${mod.name.replace(/\s/g, '_')}.jar`);
+            let file: string = path.join(this.options.gameDir, 'mods', id + '.jar');
+
+            if(exclusive) {
+                let i: number = files.indexOf(id + '.jar');
+                if(i !== -1)
+                    files.splice(i, 1);
+            }
 
             if(mod.sha1)
                 await Downloader.checkOrDownload(mod.url, mod.sha1, file);
             else
                 await Downloader.existsOrDownload(mod.url, file);
+        }
+
+        if(exclusive) {
+            let task: Promise<void>[] = [];
+            for(let i = 0; i < files.length; i++)
+                task.push(fs.unlink(path.join(this.options.gameDir, 'mods', files[i])));
+
+            await Promise.all(task);
         }
     }
 
@@ -117,7 +143,7 @@ export class MinecraftClient {
         let args: string[] = [];
         args.push(`-Djava.library.path=${this.nativeDir}`);
         args.push('-cp');
-        let classpath: string = await this.libraryManager.getClasspath();
+        let classpath: string = this.libraryManager.getClasspath();
         args.push(classpath);
         args.push(...(this.options.javaArguments || []));
         args.push(...this.libraryManager.getLaunchArguments(auth));

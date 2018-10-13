@@ -1,5 +1,4 @@
 import {ClientOptions} from "../app";
-import * as download from 'download'; //TODO: Replace with fetch
 import {Endpoints} from "./Constants";
 import * as fetch from "node-fetch";
 import * as mkdir from 'mkdirp';
@@ -41,7 +40,8 @@ export class ForgeVersion {
     }
 
     public static async getPromotedVersion(version: MinecraftVersion | string, type: ForgeVersionType): Promise<ForgeVersion | null> {
-        let data: Buffer = await download(Endpoints.FORGE_VERSION_MANIFEST);
+        let res: fetch.Response = await fetch.default(Endpoints.FORGE_VERSION_MANIFEST);
+        let data: Buffer = await res.buffer();
         let manifest: ForgeVersionManifest = JSON.parse(data.toString());
 
         let id: string;
@@ -57,7 +57,8 @@ export class ForgeVersion {
     }
 
     public static async getVersions(): Promise<ForgeVersion[]> {
-        let data: Buffer = await download(Endpoints.FORGE_VERSION_MANIFEST);
+        let res: fetch.Response = await fetch.default(Endpoints.FORGE_VERSION_MANIFEST);
+        let data: Buffer = await res.buffer();
         let manifest: ForgeVersionManifest = JSON.parse(data.toString());
         let keys: string[] = Object.keys(manifest.number);
         let result: ForgeVersion[] = [];
@@ -142,7 +143,8 @@ export class MinecraftVersion {
     }
 
     public static async getVersions(type?: MinecraftVersionType): Promise<MinecraftVersion[]> {
-        let data: Buffer = await download(Endpoints.VERSION_MANIFEST);
+        let res: fetch.Response = await fetch.default(Endpoints.VERSION_MANIFEST);
+        let data: Buffer = await res.buffer();
         let manifest: MinecraftVersionManifest = JSON.parse(data.toString());
         if(!type)
             return manifest.versions;

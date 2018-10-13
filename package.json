@@ -26,13 +26,11 @@
   },
   "homepage": "https://github.com/NobodyMiner/minecraft-client#readme",
   "devDependencies": {
-    "@types/download": "^6.2.2",
     "@types/mz": "0.0.32",
     "@types/node-fetch": "^2.1.2",
     "@types/unzipper": "^0.9.0"
   },
   "dependencies": {
-    "download": "^7.1.0",
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
     "node-fetch": "^2.2.0",
