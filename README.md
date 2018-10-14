@@ -4,7 +4,7 @@
 
 ## Usage
 
-```Typescript
+```js
 import {MinecraftClient} from 'minecraft-client';
 
 //Vanilla Minecraft Client
@@ -44,7 +44,7 @@ Valid Forge version types:
 
 ### Authentication
 
-```TypeScript
+```js
 import {Authentication} from 'minecraft-client';
 
 //This is required to download all the Libraries and assets
@@ -62,7 +62,7 @@ client.launch(await Authentication.refresh("accessToken"));
 
 ### Mods
 
-```TypeScript
+```js
 import {CurseForgeMod, CustomForgeMod, ForgeMod} from 'minecraft-client';
 
 //List Mods
