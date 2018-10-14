@@ -18,10 +18,7 @@ let client: MinecraftClient = await MinecraftClient.getForgeClient("1.12.2", "re
 });
 
 //Forge Minecraft Client with custom Version
-let client: MinecraftClient = await MinecraftClient.getForgeClient("1.12.2", {
-    version: "14.23.4.2709",
-    build: 2709
-}, {
+let client: MinecraftClient = await MinecraftClient.getForgeClient("1.12.2", "14.23.4.2709", {
     gameDir: '/home/username/.minecraft'
 });
 

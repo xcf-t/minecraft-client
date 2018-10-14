@@ -3,10 +3,7 @@ import {MinecraftVersion} from "./Versions";
 
 export declare type MinecraftVersionType = 'release' | 'snapshot' | 'unknown';
 export declare type ForgeVersionType = 'latest' | 'recommended';
-export declare type ForgeVersionDescription = {
-    build: number,
-    version: string
-}
+export declare type ForgeVersionDescription = string;
 
 export declare type MinecraftVersionManifest = {
     latest: {

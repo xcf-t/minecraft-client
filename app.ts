@@ -73,10 +73,18 @@ export class MinecraftClient {
 
         let forgeVersion: ForgeVersion;
         if(forge) {
-            if(typeof forge === 'string') {
-                forgeVersion = <ForgeVersion>await ForgeVersion.getPromotedVersion(mcVersion, <ForgeVersionType>forge);
-            } else {
-                forgeVersion = ForgeVersion.getCustomVersion(forge.build, forge.version, mcVersion);
+            if(forge === "recommended" || forge === "latest")
+                forgeVersion = <ForgeVersion>await ForgeVersion.getPromotedVersion(mcVersion, forge);
+            else {
+                let version: string = forge; //14.23.4.2709
+                let build: number; // [14, 23, 4, 2709].reverse() => [2709,4,23,14][0] => 2709
+
+                if(version.indexOf('.') === -1)
+                    return null; // failsafe?
+
+                build = parseInt(version.split('\.').reverse()[0]);
+
+                forgeVersion = await ForgeVersion.getCustomVersion(build, version, mcVersion);
             }
         }
 
