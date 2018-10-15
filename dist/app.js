@@ -6,6 +6,7 @@ const Downloader_1 = require("./utils/Downloader");
 const Libraries_1 = require("./utils/Libraries");
 const Assets_1 = require("./utils/Assets");
 const mz_1 = require("mz");
+const mkdirp = require("mkdirp");
 const InstallationProgress_1 = require("./utils/InstallationProgress");
 var Authentication_1 = require("./utils/Authentication");
 exports.Authentication = Authentication_1.Authentication;
@@ -72,6 +73,7 @@ class MinecraftClient {
     }
     async checkMods(mods, exclusive) {
         this.progress.step("Installing Mods");
+        mkdirp(path.join(this.options.gameDir, 'mods'));
         let files;
         if (exclusive)
             files = await mz_1.fs.readdir(path.join(this.options.gameDir, 'mods'));

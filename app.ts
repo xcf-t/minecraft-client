@@ -8,6 +8,7 @@ import {LibraryManager} from "./utils/Libraries";
 import {AssetManager}   from "./utils/Assets";
 
 import {child_process, fs} from 'mz';
+import * as mkdirp from 'mkdirp';
 
 import {Authentication, AuthenticationResult} from "./utils/Authentication";
 import {ForgeVersionDescription, ForgeVersionType} from "./utils/Manifests";
@@ -107,6 +108,8 @@ export class MinecraftClient {
 
     public async checkMods(mods: ForgeMod[], exclusive: boolean): Promise<void> {
         this.progress.step("Installing Mods");
+
+        mkdirp(path.join(this.options.gameDir, 'mods'));
 
         let files: string[];
         if(exclusive)
