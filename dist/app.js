@@ -45,11 +45,15 @@ class MinecraftClient {
         }
         let forgeVersion;
         if (forge) {
-            if (typeof forge === 'string') {
+            if (forge === "recommended" || forge === "latest")
                 forgeVersion = await Versions_1.ForgeVersion.getPromotedVersion(mcVersion, forge);
-            }
             else {
-                forgeVersion = Versions_1.ForgeVersion.getCustomVersion(forge.build, forge.version, mcVersion);
+                let version = forge; //14.23.4.2709
+                let build; // [14, 23, 4, 2709].reverse() => [2709,4,23,14][0] => 2709
+                if (version.indexOf('.') === -1)
+                    return null; // failsafe?
+                build = parseInt(version.split('\.').reverse()[0]);
+                forgeVersion = await Versions_1.ForgeVersion.getCustomVersion(build, version, mcVersion);
             }
         }
         if (!mcVersion)
@@ -66,16 +70,34 @@ class MinecraftClient {
         this.progress.step("Installing Assets");
         await this.assetManager.install(this.progress);
     }
-    async checkMods(...mods) {
+    async checkMods(mods, exclusive) {
         this.progress.step("Installing Mods");
+        let files;
+        if (exclusive)
+            files = await mz_1.fs.readdir(path.join(this.options.gameDir, 'mods'));
+        else
+            files = [];
+        files = files.filter(value => value.indexOf('.jar') !== -1);
         for (let i = 0; i < mods.length; i++) {
             let mod = mods[i];
+            let id = mod.name.replace(/\s/g, '_');
             this.progress.call(i / mods.length);
-            let file = path.join(this.options.gameDir, 'mods', `${mod.name.replace(/\s/g, '_')}.jar`);
+            let file = path.join(this.options.gameDir, 'mods', id + '.jar');
+            if (exclusive) {
+                let i = files.indexOf(id + '.jar');
+                if (i !== -1)
+                    files.splice(i, 1);
+            }
             if (mod.sha1)
                 await Downloader_1.default.checkOrDownload(mod.url, mod.sha1, file);
             else
                 await Downloader_1.default.existsOrDownload(mod.url, file);
+        }
+        if (exclusive) {
+            let task = [];
+            for (let i = 0; i < files.length; i++)
+                task.push(mz_1.fs.unlink(path.join(this.options.gameDir, 'mods', files[i])));
+            await Promise.all(task);
         }
     }
     async launch(auth, redirectOutput) {
@@ -83,7 +105,7 @@ class MinecraftClient {
         let args = [];
         args.push(`-Djava.library.path=${this.nativeDir}`);
         args.push('-cp');
-        let classpath = await this.libraryManager.getClasspath();
+        let classpath = this.libraryManager.getClasspath();
         args.push(classpath);
         args.push(...(this.options.javaArguments || []));
         args.push(...this.libraryManager.getLaunchArguments(auth));

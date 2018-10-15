@@ -15,7 +15,7 @@ export declare class LibraryManager {
     installMinecraftLibraries(progress: InstallationProgress): Promise<void>;
     installForgeLibraries(version: ForgeVersion, progress: InstallationProgress): Promise<void>;
     unpackNatives(version: MinecraftVersion): Promise<string>;
-    getClasspath(): Promise<string>;
+    getClasspath(): string;
     getLaunchArguments(auth: AuthenticationResult): string[];
 }
 export declare type MinecraftLibrary = {

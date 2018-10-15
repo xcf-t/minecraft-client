@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const download = require("download"); //TODO: Replace with fetch
 const Constants_1 = require("./Constants");
 const fetch = require("node-fetch");
 const mkdir = require("mkdirp");
@@ -26,7 +25,8 @@ class ForgeVersion {
         return new ForgeVersion(build, version, mc);
     }
     static async getPromotedVersion(version, type) {
-        let data = await download(Constants_1.Endpoints.FORGE_VERSION_MANIFEST);
+        let res = await fetch.default(Constants_1.Endpoints.FORGE_VERSION_MANIFEST);
+        let data = await res.buffer();
         let manifest = JSON.parse(data.toString());
         let id;
         if (typeof version === 'string')
@@ -38,7 +38,8 @@ class ForgeVersion {
         return new ForgeVersion(build.build, build.version, build.mcversion);
     }
     static async getVersions() {
-        let data = await download(Constants_1.Endpoints.FORGE_VERSION_MANIFEST);
+        let res = await fetch.default(Constants_1.Endpoints.FORGE_VERSION_MANIFEST);
+        let data = await res.buffer();
         let manifest = JSON.parse(data.toString());
         let keys = Object.keys(manifest.number);
         let result = [];
@@ -103,7 +104,8 @@ class MinecraftVersion {
         return null;
     }
     static async getVersions(type) {
-        let data = await download(Constants_1.Endpoints.VERSION_MANIFEST);
+        let res = await fetch.default(Constants_1.Endpoints.VERSION_MANIFEST);
+        let data = await res.buffer();
         let manifest = JSON.parse(data.toString());
         if (!type)
             return manifest.versions;

@@ -26,7 +26,7 @@ export declare class MinecraftClient {
     static getForgeClient(version: string | MinecraftVersion, forge: ForgeVersionType | ForgeVersionDescription, options: ClientOptions, progress?: InstallationProgress): Promise<MinecraftClient | null>;
     static getClient(version: string | MinecraftVersion, forge: ForgeVersionType | ForgeVersionDescription, options: ClientOptions, progress?: InstallationProgress): Promise<MinecraftClient | null>;
     checkInstallation(): Promise<void>;
-    checkMods(...mods: ForgeMod[]): Promise<void>;
+    checkMods(mods: ForgeMod[], exclusive: boolean): Promise<void>;
     launch(auth: AuthenticationResult, redirectOutput?: boolean): Promise<child_process.ChildProcess>;
 }
 export declare type ClientOptions = {

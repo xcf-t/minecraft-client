@@ -1,4 +1,3 @@
-import * as download from 'download';
 import * as fetch from 'node-fetch';
 import * as unzip from 'unzipper';
 import * as mkdir from 'mkdirp';
