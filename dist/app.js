@@ -101,6 +101,7 @@ class MinecraftClient {
                 task.push(mz_1.fs.unlink(path.join(this.options.gameDir, 'mods', files[i])));
             await Promise.all(task);
         }
+        this.progress.call(1);
     }
     async launch(auth, redirectOutput, javaArguments) {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);

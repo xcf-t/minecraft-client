@@ -146,6 +146,8 @@ export class MinecraftClient {
 
             await Promise.all(task);
         }
+
+        this.progress.call(1);
     }
 
     public async launch(auth: AuthenticationResult, redirectOutput?: boolean, javaArguments?: string[]): Promise<child_process.ChildProcess> {
