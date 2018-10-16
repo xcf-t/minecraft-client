@@ -51,7 +51,6 @@ export class MinecraftClient {
     }
 
     private static readonly defaultConfig: ClientOptions = {
-        javaArguments: [],
         javaExecutable: 'java'
     };
 
@@ -149,14 +148,17 @@ export class MinecraftClient {
         }
     }
 
-    public async launch(auth: AuthenticationResult, redirectOutput?: boolean): Promise<child_process.ChildProcess> {
+    public async launch(auth: AuthenticationResult, redirectOutput?: boolean, javaArguments?: string[]): Promise<child_process.ChildProcess> {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
         let args: string[] = [];
         args.push(`-Djava.library.path=${this.nativeDir}`);
         args.push('-cp');
         let classpath: string = this.libraryManager.getClasspath();
         args.push(classpath);
-        args.push(...(this.options.javaArguments || []));
+
+        if(javaArguments)
+            args.push(...(javaArguments));
+
         args.push(...this.libraryManager.getLaunchArguments(auth));
         let cp: child_process.ChildProcess = child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
@@ -172,6 +174,5 @@ export class MinecraftClient {
 
 export declare type ClientOptions = {
     gameDir?: string,
-    javaExecutable?: string,
-    javaArguments?: string[],
+    javaExecutable?: string
 }

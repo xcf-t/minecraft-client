@@ -102,14 +102,15 @@ class MinecraftClient {
             await Promise.all(task);
         }
     }
-    async launch(auth, redirectOutput) {
+    async launch(auth, redirectOutput, javaArguments) {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
         let args = [];
         args.push(`-Djava.library.path=${this.nativeDir}`);
         args.push('-cp');
         let classpath = this.libraryManager.getClasspath();
         args.push(classpath);
-        args.push(...(this.options.javaArguments || []));
+        if (javaArguments)
+            args.push(...(javaArguments));
         args.push(...this.libraryManager.getLaunchArguments(auth));
         let cp = mz_1.child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
@@ -122,7 +123,6 @@ class MinecraftClient {
     }
 }
 MinecraftClient.defaultConfig = {
-    javaArguments: [],
     javaExecutable: 'java'
 };
 exports.MinecraftClient = MinecraftClient;
