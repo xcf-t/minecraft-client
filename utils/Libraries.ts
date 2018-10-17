@@ -1,16 +1,19 @@
 import {ForgeVersion, MinecraftVersion} from "./Versions";
-import * as path from 'path';
 import {ClientOptions} from "../app";
 import Downloader from "./Downloader";
+
 import * as unzipper from 'unzipper';
 import * as fetch from 'node-fetch';
 import * as mkdir from 'mkdirp';
+import * as path from 'path';
 import * as tmp from './TempHelper';
+
 import {Endpoints, Utils} from "./Constants";
 import {ForgeLibrary, ForgeLibraryManifest, MinecraftArtifact, MinecraftLibraryManifest} from "./Manifests";
 import {AuthenticationResult} from "./Authentication";
 import {InstallationProgress} from "./InstallationProgress";
 
+import {fs} from 'mz';
 
 export class LibraryManager {
 
@@ -96,24 +99,34 @@ export class LibraryManager {
     }
 
     public async installForgeLibraries(version: ForgeVersion, progress: InstallationProgress): Promise<void> {
-        let res: fetch.Response = await fetch.default(version.installer);
-        let data: Buffer = await new Promise<Buffer>((accept, reject) => {
-            res.body.pipe(unzipper.Parse())
-                .on('entry', async function (entry) {
-                    if (entry.path === "install_profile.json") {
-                        let data: Buffer = await new Promise<Buffer>(resolve => {
-                            let buffers: Buffer[] = [];
-                            entry.on('data', (d: Buffer) => buffers.push(d));
-                            entry.on('end', () => resolve(<Buffer>Buffer.concat(buffers)));
-                        });
-                        accept(data);
-                    } else {
-                        // noinspection JSIgnoredPromiseFromCall
-                        entry.autodrain();
-                    }
-                })
-                .on('close', () => reject());
-        });
+        let data: Buffer;
+        let manifest: string = path.join(this.options.gameDir, `versions/${version.mcversion}/${version.mcversion}-forge.json`);
+        console.log('ex');
+        if(await fs.exists(manifest)) {
+            console.log('exists');
+            data = await fs.readFile(manifest);
+        } else {
+            let res: fetch.Response = await fetch.default(version.installer);
+            data = await new Promise<Buffer>((accept, reject) => {
+                res.body.pipe(unzipper.Parse())
+                    .on('entry', async function (entry) {
+                        if (entry.path === "install_profile.json") {
+                            let data: Buffer = await new Promise<Buffer>(resolve => {
+                                let buffers: Buffer[] = [];
+                                entry.on('data', (d: Buffer) => buffers.push(d));
+                                entry.on('end', () => resolve(<Buffer>Buffer.concat(buffers)));
+                            });
+                            accept(data);
+                        } else {
+                            // noinspection JSIgnoredPromiseFromCall
+                            entry.autodrain();
+                        }
+                    })
+                    .on('close', () => reject());
+            });
+            await fs.writeFile(manifest, data);
+        }
+
         let libraries: ForgeLibraryManifest = JSON.parse(data.toString());
 
         let libs: ForgeLibrary[] = libraries.versionInfo.libraries.filter(value => value.clientreq !== false);;

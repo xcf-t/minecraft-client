@@ -153,15 +153,17 @@ export class MinecraftClient {
     public async launch(auth: AuthenticationResult, redirectOutput?: boolean, javaArguments?: string[]): Promise<child_process.ChildProcess> {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
         let args: string[] = [];
+
+        if(javaArguments)
+            args.push(...(javaArguments));
+
         args.push(`-Djava.library.path=${this.nativeDir}`);
         args.push('-cp');
         let classpath: string = this.libraryManager.getClasspath();
         args.push(classpath);
 
-        if(javaArguments)
-            args.push(...(javaArguments));
-
         args.push(...this.libraryManager.getLaunchArguments(auth));
+
         let cp: child_process.ChildProcess = child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir
         });

@@ -106,12 +106,12 @@ class MinecraftClient {
     async launch(auth, redirectOutput, javaArguments) {
         this.nativeDir = await this.libraryManager.unpackNatives(this.version);
         let args = [];
+        if (javaArguments)
+            args.push(...(javaArguments));
         args.push(`-Djava.library.path=${this.nativeDir}`);
         args.push('-cp');
         let classpath = this.libraryManager.getClasspath();
         args.push(classpath);
-        if (javaArguments)
-            args.push(...(javaArguments));
         args.push(...this.libraryManager.getLaunchArguments(auth));
         let cp = mz_1.child_process.spawn(this.options.javaExecutable, args, {
             cwd: this.options.gameDir

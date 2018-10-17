@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const path = require("path");
 const Downloader_1 = require("./Downloader");
 const unzipper = require("unzipper");
 const fetch = require("node-fetch");
 const mkdir = require("mkdirp");
+const path = require("path");
 const tmp = require("./TempHelper");
 const Constants_1 = require("./Constants");
+const mz_1 = require("mz");
 class LibraryManager {
     constructor(options, version) {
         this.options = options;
@@ -51,25 +52,35 @@ class LibraryManager {
         this.assetIndex = data.assets;
     }
     async installForgeLibraries(version, progress) {
-        let res = await fetch.default(version.installer);
-        let data = await new Promise((accept, reject) => {
-            res.body.pipe(unzipper.Parse())
-                .on('entry', async function (entry) {
-                if (entry.path === "install_profile.json") {
-                    let data = await new Promise(resolve => {
-                        let buffers = [];
-                        entry.on('data', (d) => buffers.push(d));
-                        entry.on('end', () => resolve(Buffer.concat(buffers)));
-                    });
-                    accept(data);
-                }
-                else {
-                    // noinspection JSIgnoredPromiseFromCall
-                    entry.autodrain();
-                }
-            })
-                .on('close', () => reject());
-        });
+        let data;
+        let manifest = path.join(this.options.gameDir, `versions/${version.mcversion}/${version.mcversion}-forge.json`);
+        console.log('ex');
+        if (await mz_1.fs.exists(manifest)) {
+            console.log('exists');
+            data = await mz_1.fs.readFile(manifest);
+        }
+        else {
+            let res = await fetch.default(version.installer);
+            data = await new Promise((accept, reject) => {
+                res.body.pipe(unzipper.Parse())
+                    .on('entry', async function (entry) {
+                    if (entry.path === "install_profile.json") {
+                        let data = await new Promise(resolve => {
+                            let buffers = [];
+                            entry.on('data', (d) => buffers.push(d));
+                            entry.on('end', () => resolve(Buffer.concat(buffers)));
+                        });
+                        accept(data);
+                    }
+                    else {
+                        // noinspection JSIgnoredPromiseFromCall
+                        entry.autodrain();
+                    }
+                })
+                    .on('close', () => reject());
+            });
+            await mz_1.fs.writeFile(manifest, data);
+        }
         let libraries = JSON.parse(data.toString());
         let libs = libraries.versionInfo.libraries.filter(value => value.clientreq !== false);
         ;
