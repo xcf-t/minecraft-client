@@ -75,7 +75,7 @@ class MinecraftClient {
         this.progress.step("Installing Mods");
         mkdirp(path.join(this.options.gameDir, 'mods'));
         let files;
-        if (exclusive)
+        if (exclusive && await mz_1.fs.exists(path.join(this.options.gameDir, 'mods')))
             files = await mz_1.fs.readdir(path.join(this.options.gameDir, 'mods'));
         else
             files = [];

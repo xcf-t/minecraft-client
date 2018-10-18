@@ -101,9 +101,7 @@ export class LibraryManager {
     public async installForgeLibraries(version: ForgeVersion, progress: InstallationProgress): Promise<void> {
         let data: Buffer;
         let manifest: string = path.join(this.options.gameDir, `versions/${version.mcversion}/${version.mcversion}-forge.json`);
-        console.log('ex');
         if(await fs.exists(manifest)) {
-            console.log('exists');
             data = await fs.readFile(manifest);
         } else {
             let res: fetch.Response = await fetch.default(version.installer);

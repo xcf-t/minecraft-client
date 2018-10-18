@@ -111,7 +111,7 @@ export class MinecraftClient {
         mkdirp(path.join(this.options.gameDir, 'mods'));
 
         let files: string[];
-        if(exclusive)
+        if(exclusive && await fs.exists(path.join(this.options.gameDir, 'mods')))
             files = await fs.readdir(path.join(this.options.gameDir, 'mods'));
         else
             files = [];
