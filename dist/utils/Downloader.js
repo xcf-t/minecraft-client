@@ -13,7 +13,9 @@ class Downloader {
     static async download(url, destination) {
         let res = await fetch.default(url);
         await new Promise(r => mkdir(path.join(destination, '..'), r));
-        await mz_1.fs.writeFile(destination, await res.buffer());
+        if (res.status == 404)
+            throw new Error(`${res.status} ${res.statusText} (${url})`);
+        await mz_1.fs.writeFile(destination, await res.buffer()); //TODO memory optimization with pipes
     }
     static async existsOrDownload(url, destination) {
         if (!await mz_1.fs.exists(destination))

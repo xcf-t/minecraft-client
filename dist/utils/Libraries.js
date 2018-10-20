@@ -89,7 +89,16 @@ class LibraryManager {
             mkdir(path.join(dest, '..'));
             this.classpath.push(dest);
             let url = LibraryHelper.getArtifactUrl(lib);
-            await Downloader_1.default.checkOrDownload(url, lib.checksums, dest);
+            try {
+                await Downloader_1.default.checkOrDownload(url, lib.checksums, dest);
+            }
+            catch (e) {
+                //Fix bug in typesafe (missing artifacts)...
+                try {
+                    await Downloader_1.default.checkOrDownload(LibraryHelper.getArtifactUrl(lib, true), lib.checksums, dest);
+                }
+                catch (ex) { } //Missing artifact
+            }
         }
         let sha1 = (await Downloader_1.default.getFile(version.universal + '.sha1')).toString();
         let dest = path.join(this.options.gameDir, 'libraries', 'net', 'minecraftforge', 'forge', version.version, `${version.mcversion}-${version.version}`, `forge-${version.mcversion}-${version.version}-universal.jar`);
@@ -162,8 +171,8 @@ class LibraryHelper {
         }
         return result;
     }
-    static getArtifactUrl(lib) {
-        return (lib.url || Constants_1.Endpoints.MINECRAFT_LIB_SERVER) + this.getArtifactPath(lib);
+    static getArtifactUrl(lib, retry) {
+        return (retry ? 'http://central.maven.org/maven2/' : lib.url || Constants_1.Endpoints.MINECRAFT_LIB_SERVER) + this.getArtifactPath(lib);
     }
     static getArtifactPath(lib) {
         let parts = lib.name.split(':');
