@@ -121,14 +121,12 @@ export class MinecraftClient {
         for(let i = 0; i < mods.length; i++) {
             let mod: ForgeMod = mods[i];
 
-            let id: string = mod.name.replace(/\s/g, '_');
-
             this.progress.call(i/mods.length);
 
-            let file: string = path.join(this.options.gameDir, 'mods', id + '.jar');
+            let file: string = path.join(this.options.gameDir, 'mods', mod.file + '.jar');
 
             if(exclusive) {
-                let i: number = files.indexOf(id + '.jar');
+                let i: number = files.indexOf(mod.file + '.jar');
                 if(i !== -1)
                     files.splice(i, 1);
             }

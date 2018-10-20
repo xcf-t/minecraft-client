@@ -82,11 +82,10 @@ class MinecraftClient {
         files = files.filter(value => value.indexOf('.jar') !== -1);
         for (let i = 0; i < mods.length; i++) {
             let mod = mods[i];
-            let id = mod.name.replace(/\s/g, '_');
             this.progress.call(i / mods.length);
-            let file = path.join(this.options.gameDir, 'mods', id + '.jar');
+            let file = path.join(this.options.gameDir, 'mods', mod.file + '.jar');
             if (exclusive) {
-                let i = files.indexOf(id + '.jar');
+                let i = files.indexOf(mod.file + '.jar');
                 if (i !== -1)
                     files.splice(i, 1);
             }
