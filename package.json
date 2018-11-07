@@ -1,40 +1,16 @@
 {
   "name": "minecraft-client",
-  "version": "2.6.2",
-  "description": "",
-  "main": "dist/app.js",
-  "types": "dist/app.d.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/app",
-    "compile": "tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NobodyMiner/minecraft-client.git"
-  },
-  "keywords": [
-    "minecraft",
-    "launcher",
-    "client",
-    "forge"
-  ],
+  "version": "3.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:NobodyMiner/minecraft-client.git",
   "author": "fixed_",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/NobodyMiner/minecraft-client/issues"
-  },
-  "homepage": "https://github.com/NobodyMiner/minecraft-client#readme",
-  "devDependencies": {
-    "@types/mz": "0.0.32",
-    "@types/node-fetch": "^2.1.2",
-    "@types/unzipper": "^0.9.0"
-  },
   "dependencies": {
-    "mkdirp": "^0.5.1",
-    "mz": "^2.7.0",
-    "node-fetch": "^2.2.0",
-    "typescript": "^3.1.2",
-    "unzipper": "^0.9.3"
+    "node-fetch": "^2.2.1",
+    "unzipper": "^0.9.4"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.1.2",
+    "@types/unzipper": "^0.9.1"
   }
 }
